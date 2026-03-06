@@ -1,0 +1,232 @@
+import React from 'react';
+import { X } from 'lucide-react';
+
+const VehicleModal = ({
+    modalMode,
+    formData,
+    formErrors,
+    formSubmitting,
+    filterOptions,
+    closeModal,
+    brands,
+    handleChange,
+    submitVehicle,
+}) => {
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/40" onClick={closeModal}></div>
+
+            {/* Modal Content */}
+            <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-xl border p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                        {modalMode === 'create' ? 'Ajouter un véhicule' : 'Éditer le véhicule'}
+                    </h3>
+                    <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100">
+                        <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                    </button>
+                </div>
+
+                {/* General Form Error Display */}
+                {formErrors.general && (
+                    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+                        <strong className="font-semibold">Erreur :</strong> {Array.isArray(formErrors.general) ? formErrors.general.join(' ') : String(formErrors.general)}
+                    </div>
+                )}
+                
+                {/* Display all validation errors if any */}
+                {Object.keys(formErrors).length > 0 && !formErrors.general && (
+                    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+                        <strong className="font-semibold">Veuillez corriger les erreurs suivantes :</strong>
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                            {Object.entries(formErrors).map(([key, value]) => (
+                                <li key={key}>
+                                    {Array.isArray(value) ? value.join(', ') : String(value)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                <form onSubmit={submitVehicle} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Marque */}
+                        <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Marque
+                        </label>
+                        <select
+                            name="brand"
+                            value={formData.brand}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required
+                        >
+                            <option value="">-- Sélectionnez une marque --</option>
+                            {brands.map((brand) => (
+                                <option key={brand.id} value={brand.name}>
+                                    {brand.name}
+                                </option>
+                            ))}
+                        </select>
+                        {formErrors.brand && (
+                            <p className="text-xs text-red-600 mt-1">{formErrors.brand[0]}</p>
+                        )}
+                    </div>
+
+
+                        {/* Modèle */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Modèle</label>
+                            <input name="model" value={formData.model} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
+                            {formErrors.model && <p className="text-xs text-red-600 mt-1">{formErrors.model[0]}</p>}
+                        </div>
+
+                        {/* Année */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
+                            <input type="number" name="year" value={formData.year} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
+                            {formErrors.year && <p className="text-xs text-red-600 mt-1">{formErrors.year[0]}</p>}
+                        </div>
+
+                        {/* Prix */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Prix (FDJ)</label>
+                            <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
+                            {formErrors.price && <p className="text-xs text-red-600 mt-1">{formErrors.price[0]}</p>}
+                        </div>
+
+                        {/* Kilométrage */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Kilométrage</label>
+                            <input type="number" name="mileage" value={formData.mileage} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            {formErrors.mileage && <p className="text-xs text-red-600 mt-1">{formErrors.mileage[0]}</p>}
+                        </div>
+
+                        {/* Carburant */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Carburant</label>
+                            <select name="fuel" value={formData.fuel} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Sélectionner</option>
+                                {filterOptions.fuel_types.map((f) => (
+                                    <option key={f} value={f}>{f}</option>
+                                ))}
+                            </select>
+                            {formErrors.fuel && <p className="text-xs text-red-600 mt-1">{formErrors.fuel[0]}</p>}
+                        </div>
+
+                        {/* Transmission */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+                            <select name="transmission" value={formData.transmission} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Sélectionner</option>
+                                {filterOptions.transmission_types.map((t) => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                            {formErrors.transmission && <p className="text-xs text-red-600 mt-1">{formErrors.transmission[0]}</p>}
+                        </div>
+                        {/* Numéro de contact */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Numéro de contact
+                            </label>
+                            <input
+                                type="tel"
+                                name="contact_number"
+                                value={formData.contact_number || ''}
+                                onChange={handleChange}
+                                placeholder="+253xxxxxxxx"
+                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                            {formErrors.contact_number && (
+                                <p className="text-xs text-red-600 mt-1">{formErrors.contact_number[0]}</p>
+                            )}
+                        </div>
+
+                        {/* Statut */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                            <select name="status" value={formData.status || 'active'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="active">Disponible</option>
+                                <option value="inactive">InDisponible</option>
+                            </select>
+                            {formErrors.status && <p className="text-xs text-red-600 mt-1">{formErrors.status[0]}</p>}
+                        </div>
+
+                        {/* Couleur */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Couleur</label>
+                            <input name="color" value={formData.color} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            {formErrors.color && <p className="text-xs text-red-600 mt-1">{formErrors.color[0]}</p>}
+                        </div>
+
+                        {/* Description */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange} rows={3} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            {formErrors.description && <p className="text-xs text-red-600 mt-1">{formErrors.description[0]}</p>}
+                        </div>
+
+
+                        {/* AJOUT: Champ Photos du véhicule (multi-colonnes) */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Photos du véhicule
+                            </label>
+                            <input
+                                type="file"
+                                name="images"
+                                onChange={handleChange}
+                                multiple // Permet la sélection de plusieurs fichiers
+                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                className="w-full text-sm text-gray-500
+                                           file:mr-4 file:py-2 file:px-4
+                                           file:rounded-lg file:border-0
+                                           file:text-sm file:font-semibold
+                                           file:bg-blue-50 file:text-blue-700
+                                           hover:file:bg-blue-100"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Formats acceptés : JPEG, PNG, JPG, GIF, WEBP • Taille max : 5 MB par photo • Maximum : 10 photos
+                            </p>
+                            {/* Afficher toutes les erreurs liées aux photos */}
+                            {Object.keys(formErrors).filter(key => key.startsWith('photos')).map((key) => (
+                                <p key={key} className="text-xs text-red-600 mt-1">
+                                    {Array.isArray(formErrors[key]) ? formErrors[key].join(', ') : String(formErrors[key])}
+                                </p>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Checkboxes */}
+                    <div className="flex items-center gap-6 mt-2">
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                            <input type="checkbox" name="is_featured" checked={!!formData.is_featured} onChange={handleChange} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                            En vedette
+                        </label>
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                            <input type="checkbox" name="is_new" checked={!!formData.is_new} onChange={handleChange} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                            Neuf
+                        </label>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-3 mt-6">
+                        <button type="button" onClick={closeModal} className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50" disabled={formSubmitting}>
+                            Annuler
+                        </button>
+                        <button type="submit" disabled={formSubmitting} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
+                            {modalMode === 'create' ? 'Ajouter' : 'Enregistrer'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default VehicleModal;
