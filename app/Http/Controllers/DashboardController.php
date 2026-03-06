@@ -8,33 +8,39 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Gère la logique et les données du tableau de bord d'administration.
- */
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
         $user = $request->user();
-        $userRole = $user->role ?? 'admin'; // Récupérer le vrai rôle de l'utilisateur
+        $userRole = $user->role ?? 'user';
 
-        // Calcul des statistiques
-        $totalParcelles = Parcelle::count();
-        $totalLocations = DB::table('locations')->where('status', 'active')->count();
-        $totalUtilisateurs = User::count();
-        // // Exemple: Nous allons supposer une table "Reparation"
-        // $reparationsEnCours = DB::table('reparations')->where('status', 'en_cours')->count();
-        // ✅ La remplacer par une valeur par défaut de 0
+        // Si ADMIN → voir tout
+        if ($userRole === 'admin') {
+
+            $totalParcelles = Parcelle::count();
+            $totalLocations = Location::where('status', 'active')->count();
+            $totalUtilisateurs = User::count();
+
+        } 
+        // Si utilisateur normal → voir seulement ses données
+        else {
+
+            $totalParcelles = Parcelle::where('user_id', $user->id)->count();
+            $totalLocations = Location::where('user_id', $user->id)
+                                      ->where('status', 'active')
+                                      ->count();
+
+            $totalUtilisateurs = 0; // il ne voit pas les utilisateurs
+        }
 
         $stats = [
-            // Clés utilisées par le Frontend React (voir ci-dessous)
             'total_parcelles' => $totalParcelles,
             'total_locations' => $totalLocations,
             'total_utilisateurs' => $totalUtilisateurs,
-            // etc.
         ];
 
-        $message = "Bienvenue sur le tableau de bord de l'administration, {$user->name} !";
+        $message = "Bienvenue sur le tableau de bord, {$user->name} !";
 
         return response()->json([
             'message' => $message,
